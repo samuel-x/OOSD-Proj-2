@@ -25,6 +25,9 @@ public class Loader {
 
             // read in dimensions of map for 2d array
             text = reader.readLine();
+            line = text.split(",");
+            int worldX = Integer.parseInt(line[0]);
+            int worldY = Integer.parseInt(line[1]);
 
             int i = 0;
             int j = 0;
@@ -32,7 +35,7 @@ public class Loader {
             // parse the sprites into the list
             while ((text = reader.readLine()) != null) {
                 line = text.split(",");
-                Coordinate pos = new Coordinate(Integer.parseInt(line[1]), Integer.parseInt(line[2]));
+                Coordinate pos = snapToGrid(Integer.parseInt(line[1]), Integer.parseInt(line[2]), worldX, worldY);
                 if (map.get(pos) != null) {
                     map.get(pos).add(parseSprite(line[0], pos));
                 }
@@ -76,6 +79,21 @@ public class Loader {
     }
 
     /**
+     * Function gets centered coordinates to draw frames.
+     * @param x coordinate of tile on x axis
+     * @param y coordinate of tile on y axis
+     * @return modified coordinates in an array
+     */
+    public static Coordinate snapToGrid(int x, int y, int worldX, int worldY) {
+
+        // Works by getting the middle point of the screen (origin), and then finding the top left corner of the map
+        // relative to the origin, and applying the TILE_SIZE factor.
+        Coordinate coords = new Coordinate(App.SCREEN_WIDTH/2 - (worldX*App.TILE_SIZE)/2 + (x*App.TILE_SIZE)
+                                         , App.SCREEN_HEIGHT/2 - (worldY*App.TILE_SIZE)/2 + (y*App.TILE_SIZE));
+        return coords;
+    }
+
+    /**
      * Parses a string to a sprite object
      * @param name of object
      * @param x of sprite
@@ -97,23 +115,22 @@ public class Loader {
 
         // parse name of sprite to actual sprite object, if it's a wall, it has the blocked property set to true
         // (as you shouldn't be able to walk through walls)
-        Sprite tile = new Sprite(source, pos, blocked);
+        Sprite tile = new Sprite(source, pos);
         switch (name) {
             case "wall":
-                blocked = true;
-                tile = new Wall(source, pos, blocked);
+                tile = new Wall(source, pos);
                 break;
             case "floor":
-                tile = new Floor(source, pos, blocked);
+                tile = new Floor(source, pos);
                 break;
             case "stone":
-                tile = new Stone(source, pos, blocked);
+                tile = new Stone(source, pos);
                 break;
             case "target":
-                tile = new Target(source, pos, blocked);
+                tile = new Target(source, pos);
                 break;
             case "player":
-                tile = new Player(source, pos, blocked);
+                tile = new Player(source, pos);
                 break;
         }
 

@@ -8,8 +8,8 @@ import org.newdawn.slick.SlickException;
 public class Player extends Sprite{
 
 	// Currently just inherits everything from Sprite class
-	public Player(String image_src, Coordinate pos, boolean access) throws SlickException {
-		super(image_src, pos, access);
+	public Player(String image_src, Coordinate pos) throws SlickException {
+		super(image_src, pos);
 	}
 	
     /**
@@ -17,24 +17,32 @@ public class Player extends Sprite{
      * @param input of keyboard
      * @return new coordinates
      */
-    public int[] movePlayer(Input input) {
-        int moveX = 0;
-        int moveY = 0;
-        if (input.isKeyPressed(Input.KEY_UP)) {
-            moveY--;
-        }
-        if (input.isKeyPressed(Input.KEY_DOWN)) {
-            moveY++;
-        }
+    @Override
+    public void update(Input input, int delta) {
+        int dir = DIR_NONE;
+
         if (input.isKeyPressed(Input.KEY_LEFT)) {
-            moveX--;
+            dir = DIR_LEFT;
         }
-        if (input.isKeyPressed(Input.KEY_RIGHT)) {
-            moveX++;
+        else if (input.isKeyPressed(Input.KEY_RIGHT)) {
+            dir = DIR_RIGHT;
         }
-        int[] newPos = {moveX, moveY};
-        return newPos;
+        else if (input.isKeyPressed(Input.KEY_UP)) {
+            dir = DIR_UP;
+        }
+        else if (input.isKeyPressed(Input.KEY_DOWN)) {
+            dir = DIR_DOWN;
+        }
+
+        // Move to our destination
+        // if it moved, rehash position in hash map
+        if (moveToDest(dir)) {
+            GameManager.rehashPlayer();
+        };
+
     }
+
+
 
 
 }

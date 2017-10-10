@@ -1,23 +1,22 @@
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
  * This class represents the entire game world
  */
 public class World {
-    private final String FILENAME = "res/levels/0.lvl";
+    private String level_file;
     private int worldX;
     private int worldY;
-
     private HashMap<Coordinate, ArrayList<Sprite>> map = new HashMap<>();
 
-    public World() {
+    public World(String level) {
         // load in map
-        this.map = Loader.loadSprites(FILENAME);
-        this.worldX = Loader.getDimensions(FILENAME)[0];
-        this.worldY = Loader.getDimensions(FILENAME)[1];
+        this.map = Loader.loadSprites(level);
 	}
 
     /**
@@ -27,35 +26,8 @@ public class World {
      */
 	public void update(Input input, int delta) {
 
-        // Get the player, and then move it around according to input.
-        Player player = getPlayer(map);
-
-        // Get the next move (possible turn based application later?)
-        int[] move = player.movePlayer(input);
-
-        // Apply move, and check if it's valid (as in it doesn't go over a wall).
-        // If it's valid, set new coordinates for player.
-        move[0] += player.getPosX();
-        move[1] += player.getPosY();
-        if (isValidMove(player.getPos())) {
-            player.setPosX(move[0]);
-            player.setPosY(move[1]);
-        }
 	}
 
-    private Player getPlayer(HashMap<Coordinate, ArrayList<Sprite>> map) {
-	    Player player = null;
-        // Iterate over the list of sprites, and render them
-        for (ArrayList<Sprite> height : map.values()) {
-            for (Sprite sprite : height) {
-                if (sprite instanceof Player) {
-                    player = (Player) sprite;
-                }
-            }
-        }
-        return player;
-
-    }
 
     /**
      * Renders the frame
@@ -63,57 +35,35 @@ public class World {
      */
 	public void render(Graphics g) {
 
-	    renderMap(map);
-
-	}
-
-	private void renderMap(HashMap<Coordinate, ArrayList<Sprite>> map) {
-        // Iterate over the list of sprites, and render them
         for (ArrayList<Sprite> height : map.values()) {
             for (Sprite sprite : height) {
                 // Get centered coordinates for the map (so it renders in the middle of the screen)
+                sprite.render();
 
-                int[] coordinates = getCoords(sprite.getPosX(), sprite.getPosY());
-
-                // Draw it!
-                sprite.getImg().drawCentered(coordinates[0], coordinates[1]);
             }
         }
-
-    }
-    /**
-     * Function gets centered coordinates to draw frames.
-     * @param x coordinate of tile on x axis
-     * @param y coordinate of tile on y axis
-     * @return modified coordinates in an array
-     */
-	public int[] getCoords(int x, int y) {
-
-        // Works by getting the middle point of the screen (origin), and then finding the top left corner of the map
-        // relative to the origin, and applying the TILE_SIZE factor.
-        int[] coords = {App.SCREEN_WIDTH/2 - (this.worldX*App.TILE_SIZE)/2 + (x*App.TILE_SIZE)
-                     , App.SCREEN_HEIGHT/2 - (this.worldY*App.TILE_SIZE)/2 + (y*App.TILE_SIZE)};
-        return coords;
     }
 
-    /**
-     * Checks if the next move is valid
-     * @param x coordinate of tile on x axis
-     * @param y coordinate of tile on y axis
-     * @return bool of whether it's a valid move or not
-     */
-    public boolean isValidMove(Coordinate pos) {
-        // Iterate over the map, and if the sprite is moving to the specified coordinate, check if the tile is
-        // blocked (as in it is a wall). If so, return false, otherwise return true.
-        boolean blocked = true;
-        for (Sprite sprite : map.get(pos)) {
-            if (sprite.getBlocked()) {
-                blocked = false;
+    public HashMap<Coordinate, ArrayList<Sprite>> getMap() {
+        return map;
+    }
+
+    public ArrayList<Sprite> getMapPos(Coordinate pos) {
+        return map.get(pos);
+    }
+
+    public void rehashPlayerTile(Coordinate pos) {
+	    for (ArrayList<Sprite> row : map.values()) {
+	        Iterator<Sprite> itr = row.iterator();
+	        while (itr.hasNext()) {
+	            Sprite sprite = itr.next();
+                if (itr instanceof Player) {
+                    System.out.println("fish");
+                    itr.remove();
+                    map.get(pos).add(sprite);
+                }
             }
         }
-        return blocked;
     }
-
-
 
 }
