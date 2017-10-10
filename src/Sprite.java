@@ -25,6 +25,8 @@ public class Sprite {
         return this.pos.getY();
     }
 
+    public Coordinate getPos() { return this.pos; }
+
     public Image getImg() {
         return img;
     }

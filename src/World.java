@@ -37,7 +37,7 @@ public class World {
         // If it's valid, set new coordinates for player.
         move[0] += player.getPosX();
         move[1] += player.getPosY();
-        if (isValidMove(move[0], move[1])) {
+        if (isValidMove(player.getPos())) {
             player.setPosX(move[0]);
             player.setPosY(move[1]);
         }
@@ -102,16 +102,16 @@ public class World {
      * @param y coordinate of tile on y axis
      * @return bool of whether it's a valid move or not
      */
-    public boolean isValidMove(int x, int y) {
+    public boolean isValidMove(Coordinate pos) {
         // Iterate over the map, and if the sprite is moving to the specified coordinate, check if the tile is
         // blocked (as in it is a wall). If so, return false, otherwise return true.
-        Coordinate pos = new Coordinate(x, y);
+        boolean blocked = true;
         for (Sprite sprite : map.get(pos)) {
             if (sprite.getBlocked()) {
-                return false;
+                blocked = false;
             }
         }
-        return true;
+        return blocked;
     }
 
 
