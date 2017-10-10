@@ -5,7 +5,7 @@ public abstract class Block extends Sprite implements Pushable {
         super(image_src, pos);
     }
 
-    public boolean moveToDest(int dir)
+    public boolean push(int dir)
     {
         boolean did_move = false;
 

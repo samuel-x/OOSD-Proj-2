@@ -10,9 +10,4 @@ public class Mage extends Unit {
     public void update(Input input, int delta) {
 
     }
-
-    @Override
-    public boolean moveToDest(int dir) {
-        return false;
-    }
 }

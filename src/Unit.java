@@ -7,7 +7,7 @@ public abstract class Unit extends Sprite implements Moveable {
         this.current_dir = 0;
     }
 
-    public boolean moveToDest(int dir)
+    public boolean move(int dir)
     {
         boolean did_move = false;
 

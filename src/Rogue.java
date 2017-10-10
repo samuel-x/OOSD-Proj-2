@@ -1,15 +1,15 @@
 import org.newdawn.slick.Input;
 
-public class Rouge extends Unit {
+public class Rogue extends Unit {
 
-    public Rouge(String image_src, Coordinate pos) {
+    public Rogue(String image_src, Coordinate pos) {
         super(image_src, pos);
         this.current_dir = DIR_LEFT;
     }
 
     @Override
     public void update(Input input, int delta) {
-        if(!moveToDest(current_dir)) {
+        if(!move(current_dir)) {
             if (current_dir == DIR_LEFT) {
                 current_dir = DIR_RIGHT;
             } else {
@@ -19,7 +19,7 @@ public class Rouge extends Unit {
     }
 
     @Override
-    public boolean moveToDest(int dir)
+    public boolean move(int dir)
     {
         boolean did_move = false;
 

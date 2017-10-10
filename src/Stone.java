@@ -10,9 +10,4 @@ public class Stone extends Block {
 		super(image_src, pos);
 	}
 
-
-	@Override
-	public void push(int dir) {
-
-	}
 }
