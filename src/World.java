@@ -8,13 +8,21 @@ import java.util.*;
  */
 public class World {
     private final String FILENAME = "res/levels/0.lvl";
+    private final String WORLD = "world";
+    private final String BLOCK = "block";
+    private final String CHARACTER = "character";
     private int worldX;
     private int worldY;
-    private ArrayList<Sprite> map = new ArrayList<>();
+
+    private List<List<Sprite>> worldMap = new ArrayList<List<Sprite>>();
+    private List<List<Sprite>> blockMap = new ArrayList<List<Sprite>>();
+    private List<List<Sprite>> characterMap = new ArrayList<List<Sprite>>();
 
     public World() {
         // load in map
-        this.map = Loader.loadSprites(FILENAME);
+        this.worldMap = Loader.loadSprites(FILENAME, WORLD);
+        this.blockMap = Loader.loadSprites(FILENAME, BLOCK);
+        this.characterMap = Loader.loadSprites(FILENAME, CHARACTER);
         this.worldX = Loader.getDimensions(FILENAME)[0];
         this.worldY = Loader.getDimensions(FILENAME)[1];
 	}
@@ -27,7 +35,7 @@ public class World {
 	public void update(Input input, int delta) {
 
         // Get the player, and then move it around according to input.
-        Player player = (Player) map.get(map.size()-1);
+        Player player = getPlayer(characterMap);
 
         // Get the next move (possible turn based application later?)
         int[] move = player.movePlayer(input);
@@ -42,25 +50,48 @@ public class World {
         }
 	}
 
+	private Player getPlayer(List<List<Sprite>> map) {
+        Player player = null;
+	    for (List<Sprite> row : map) {
+            for (Sprite sprite : row) {
+                // Get centered coordinates for the map (so it renders in the middle of the screen)
+                if (sprite instanceof Player) {
+                    player = (Player) sprite;
+                }
+            }
+        }
+        return player;
+    }
+
     /**
      * Renders the frame
      * @param g - graphics object passed from App.java for later use
      */
 	public void render(Graphics g) {
 
-        // Iterate over the list of sprites, and render them
-        Iterator<Sprite> iterate = this.map.iterator();
-        while (iterate.hasNext()) {
-            Sprite sprite = iterate.next();
+	    renderMap(worldMap);
+        renderMap(blockMap);
+        renderMap(characterMap);
 
-            // Get centered coordinates for the map (so it renders in the middle of the screen)
-            int[] coordinates = getCoords(sprite.getPosX(), sprite.getPosY());
-
-            // Draw it!
-            sprite.getImg().drawCentered(coordinates[0], coordinates[1]);
-        }
 	}
 
+	private void renderMap(List<List<Sprite>> map) {
+        // Iterate over the list of sprites, and render them
+        for (List<Sprite> row : map) {
+            for (Sprite sprite : row) {
+
+                if (!(sprite instanceof Blank)) {
+                    // Get centered coordinates for the map (so it renders in the middle of the screen)
+
+                    int[] coordinates = getCoords(sprite.getPosX(), sprite.getPosY());
+
+                    // Draw it!
+                    sprite.getImg().drawCentered(coordinates[0], coordinates[1]);
+                }
+            }
+        }
+
+    }
     /**
      * Function gets centered coordinates to draw frames.
      * @param x coordinate of tile on x axis
@@ -85,12 +116,8 @@ public class World {
     public boolean isValidMove(int x, int y) {
         // Iterate over the map, and if the sprite is moving to the specified coordinate, check if the tile is
         // blocked (as in it is a wall). If so, return false, otherwise return true.
-        Iterator<Sprite> iterate = this.map.iterator();
-        while (iterate.hasNext()) {
-            Sprite sprite = iterate.next();
-            if ((sprite.getPosX() == x) && (sprite.getPosY() == y) && (sprite.getBlocked())) {
-                return false;
-            }
+        if (worldMap.get(x).get(y).getBlocked()) {
+            return false;
         }
         return true;
     }

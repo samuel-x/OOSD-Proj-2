@@ -8,8 +8,8 @@ import org.newdawn.slick.SlickException;
 public class Player extends Sprite{
 
 	// Currently just inherits everything from Sprite class
-	public Player(String image_src, int x, int y, boolean access) throws SlickException {
-		super(image_src, x, y, access);
+	public Player(String image_src, Coordinate pos, boolean access) throws SlickException {
+		super(image_src, pos, access);
 	}
 	
     /**

@@ -6,7 +6,7 @@ import org.newdawn.slick.SlickException;
 public class Target extends Sprite {
 
 	// Just acts as a normal sprite for now.
-	public Target(String image_src, int x, int y, boolean access) throws SlickException {
-        super(image_src, x, y, access);
+	public Target(String image_src, Coordinate pos , boolean access) throws SlickException {
+        super(image_src, pos, access);
 	}
 }

@@ -1,7 +1,7 @@
 import org.newdawn.slick.SlickException;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.util.ArrayList;
+import java.util.*;
 
 
 /**
@@ -14,24 +14,44 @@ public class Loader {
 	 * @param filename of level
 	 * @return list of sprites
 	 */
-	public static ArrayList<Sprite> loadSprites(String filename) {
+	public static List<List<Sprite>> loadSprites(String filename, String mapType) {
 	    // Define variables
-        ArrayList<Sprite> sprites = new ArrayList<>();
+        List<List<Sprite>> sprites = new ArrayList<List<Sprite>>();
         String[] line;
         String text;
 
         // Try reading in text from rile
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
 
-            // Skip the line of map dimensions
-            reader.readLine();
+            // read in dimensions of map for 2d array
+            text = reader.readLine();
+            line = text.split(",");
+            int dimensionX = Integer.parseInt(line[0]);
+            int dimensionY = Integer.parseInt(line[1]);
 
+            Sprite[][] map = new Sprite[dimensionX][dimensionY];
+            for (int i = 0; i < dimensionX; i++) {
+                for (int j = 0; j < dimensionY; j++) {
+                    map[i][j] = new Blank();
+                }
+            }
+
+            int i = 0;
+            int j = 0;
             // While there are still tiles to be added, separate the text into strings and
             // parse the sprites into the list
             while ((text = reader.readLine()) != null) {
                 line = text.split(",");
-                sprites.add(parseSprite(line[0], Integer.parseInt(line[1]), Integer.parseInt(line[2])));
+                if (i < dimensionX) {
+                    map[i][j] = (parseSprite(line[0], Integer.parseInt(line[1]), Integer.parseInt(line[2]), mapType));
+                    i++;
+                }
+                else {
+                    i = 0;
+                    j++;
+                }
             }
+            sprites = convertMap(map);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -39,6 +59,15 @@ public class Loader {
         return sprites;
 
 	}
+
+	private static List<List<Sprite>> convertMap(Sprite[][] map) {
+	    ArrayList<List<Sprite>> listMap = new ArrayList<List<Sprite>>();
+	    for (int i = 0; i < map.length; i++) {
+            List<Sprite> row = Arrays.asList(map[i]);
+	        listMap.add(row);
+        }
+        return listMap;
+    }
 
     /**
      * Function gets dimensions of the map.
@@ -73,7 +102,7 @@ public class Loader {
      * @return Sprite object
      * @throws SlickException
      */
-	private static Sprite parseSprite(String name, int x, int y) throws SlickException {
+	private static Sprite parseSprite(String name, int x, int y, String mapType) throws SlickException {
         // First make name lower case (all resource tile files should have lower case names!)
         name = name.toLowerCase();
         String source;
@@ -88,24 +117,34 @@ public class Loader {
 
         // parse name of sprite to actual sprite object, if it's a wall, it has the blocked property set to true
         // (as you shouldn't be able to walk through walls)
-        Sprite tile = new Sprite(source, x, y, blocked);
-        switch (name) {
-            case "wall":
-                blocked = true;
-                tile = new Wall(source, x, y, blocked);
-                break;
-            case "stone":
-                tile = new Stone(source, x, y, blocked);
-                break;
-            case "floor":
-                tile = new Floor(source, x, y, blocked);
-                break;
-            case "player":
-                tile = new Player(source, x, y, blocked);
-                break;
-            case "target":
-                tile = new Target(source, x, y, blocked);
-                break;
+        Sprite tile = new Blank();
+        if (mapType.equals("world")) {
+            switch (name) {
+                case "wall":
+                    blocked = true;
+                    tile = new Wall(source, new Coordinate(x, y), blocked);
+                    break;
+                case "floor":
+                    tile = new Floor(source, new Coordinate(x, y), blocked);
+                    break;
+            }
+        }
+        else if (mapType.equals("block")) {
+            switch (name) {
+                case "stone":
+                    tile = new Stone(source, new Coordinate(x, y), blocked);
+                    break;
+                case "target":
+                    tile = new Target(source, new Coordinate(x, y), blocked);
+                    break;
+            }
+        }
+        else if (mapType.equals("character")){
+            switch (name) {
+                case "player":
+                    tile = new Player(source, new Coordinate(x, y), blocked);
+                    break;
+            }
         }
 
         // return the new sprite
