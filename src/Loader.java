@@ -14,9 +14,9 @@ public class Loader {
 	 * @param filename of level
 	 * @return list of sprites
 	 */
-	public static List<List<Sprite>> loadSprites(String filename, String mapType) {
+	public static HashMap<Coordinate, ArrayList<Sprite>> loadSprites(String filename) {
 	    // Define variables
-        List<List<Sprite>> sprites = new ArrayList<List<Sprite>>();
+        HashMap<Coordinate, ArrayList<Sprite>> map = new HashMap<>();
         String[] line;
         String text;
 
@@ -25,16 +25,6 @@ public class Loader {
 
             // read in dimensions of map for 2d array
             text = reader.readLine();
-            line = text.split(",");
-            int dimensionX = Integer.parseInt(line[0]);
-            int dimensionY = Integer.parseInt(line[1]);
-
-            Sprite[][] map = new Sprite[dimensionX][dimensionY];
-            for (int i = 0; i < dimensionX; i++) {
-                for (int j = 0; j < dimensionY; j++) {
-                    map[i][j] = new Blank();
-                }
-            }
 
             int i = 0;
             int j = 0;
@@ -42,32 +32,23 @@ public class Loader {
             // parse the sprites into the list
             while ((text = reader.readLine()) != null) {
                 line = text.split(",");
-                if (i < dimensionX) {
-                    map[i][j] = (parseSprite(line[0], Integer.parseInt(line[1]), Integer.parseInt(line[2]), mapType));
-                    i++;
+                Coordinate pos = new Coordinate(Integer.parseInt(line[1]), Integer.parseInt(line[2]));
+                if (map.get(pos) != null) {
+                    map.get(pos).add(parseSprite(line[0], pos));
                 }
                 else {
-                    i = 0;
-                    j++;
+                    ArrayList<Sprite> sprite = new ArrayList<>();
+                    sprite.add(parseSprite(line[0], pos));
+                    map.put(pos, sprite);
                 }
             }
-            sprites = convertMap(map);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return sprites;
+        return map;
 
 	}
-
-	private static List<List<Sprite>> convertMap(Sprite[][] map) {
-	    ArrayList<List<Sprite>> listMap = new ArrayList<List<Sprite>>();
-	    for (int i = 0; i < map.length; i++) {
-            List<Sprite> row = Arrays.asList(map[i]);
-	        listMap.add(row);
-        }
-        return listMap;
-    }
 
     /**
      * Function gets dimensions of the map.
@@ -97,12 +78,11 @@ public class Loader {
     /**
      * Parses a string to a sprite object
      * @param name of object
-     * @param x coordinate of sprite
-     * @param y coordinate of sprite
+     * @param x of sprite
      * @return Sprite object
      * @throws SlickException
      */
-	private static Sprite parseSprite(String name, int x, int y, String mapType) throws SlickException {
+	private static Sprite parseSprite(String name, Coordinate pos) throws SlickException {
         // First make name lower case (all resource tile files should have lower case names!)
         name = name.toLowerCase();
         String source;
@@ -117,35 +97,26 @@ public class Loader {
 
         // parse name of sprite to actual sprite object, if it's a wall, it has the blocked property set to true
         // (as you shouldn't be able to walk through walls)
-        Sprite tile = new Blank();
-        if (mapType.equals("world")) {
-            switch (name) {
-                case "wall":
-                    blocked = true;
-                    tile = new Wall(source, new Coordinate(x, y), blocked);
-                    break;
-                case "floor":
-                    tile = new Floor(source, new Coordinate(x, y), blocked);
-                    break;
-            }
+        Sprite tile = new Sprite(source, pos, blocked);
+        switch (name) {
+            case "wall":
+                blocked = true;
+                tile = new Wall(source, pos, blocked);
+                break;
+            case "floor":
+                tile = new Floor(source, pos, blocked);
+                break;
+            case "stone":
+                tile = new Stone(source, pos, blocked);
+                break;
+            case "target":
+                tile = new Target(source, pos, blocked);
+                break;
+            case "player":
+                tile = new Player(source, pos, blocked);
+                break;
         }
-        else if (mapType.equals("block")) {
-            switch (name) {
-                case "stone":
-                    tile = new Stone(source, new Coordinate(x, y), blocked);
-                    break;
-                case "target":
-                    tile = new Target(source, new Coordinate(x, y), blocked);
-                    break;
-            }
-        }
-        else if (mapType.equals("character")){
-            switch (name) {
-                case "player":
-                    tile = new Player(source, new Coordinate(x, y), blocked);
-                    break;
-            }
-        }
+
 
         // return the new sprite
         return tile;
