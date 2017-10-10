@@ -1,11 +1,13 @@
 import java.util.Stack;
 
 public class GameStates {
-    Stack<World> history = new Stack();
-    public void recordMove(World world) {
+    static Stack<World> history = new Stack();
+    public static void recordMove(World world) {
         history.push(world);
     }
-    public World undo() {
-        return history.pop();
+    public static World undo() {
+        World undo = history.pop();
+        System.out.println(undo);
+        return undo;
     }
 }

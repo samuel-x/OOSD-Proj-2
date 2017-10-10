@@ -9,7 +9,6 @@ import java.util.*;
  * This class represents the entire game world
  */
 public class World {
-    private String level_file;
     private int worldX;
     private int worldY;
     private HashMap<Coordinate, ArrayList<Sprite>> map = new HashMap<>();
@@ -64,4 +63,13 @@ public class World {
         map.get(new_pos).add(sprite);
     }
 
+    public HashMap<Coordinate, ArrayList<Sprite>> copyMap(HashMap<Coordinate, ArrayList<Sprite>> map) {
+        HashMap<Coordinate, ArrayList<Sprite>> new_map = new HashMap<Coordinate, ArrayList<Sprite>>();
+        new_map.putAll(map);
+        return new_map;
+    }
+
+    public void setMap(HashMap<Coordinate, ArrayList<Sprite>> map) {
+        this.map = map;
+    }
 }

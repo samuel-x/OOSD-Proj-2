@@ -1,5 +1,6 @@
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.KeyListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +11,6 @@ public class GameManager {
     private static int currentLevelY;
     private static int currentLevel = 0;
     private static String level_name = "res/levels/" + currentLevel + ".lvl";
-
     private static World current_world;
 
     public static void newGame() {
@@ -19,6 +19,7 @@ public class GameManager {
 
     public static void nextLevel() {
         currentLevel++;
+        level_name = "res/levels/" + currentLevel + ".lvl";
         loadLevel(level_name);
     }
 
@@ -33,11 +34,21 @@ public class GameManager {
     public static void update(Input input, int delta) {
 
         // Get the player, and then move it around according to input.
-        movePlayer(input, delta);
+        if (input.isKeyPressed(Input.KEY_R)) {
+            nextLevel();
+        }
+        if (input.isKeyPressed(Input.KEY_Z)) {
+            System.out.println("yay");
+            current_world = GameStates.undo();
+        }
+        if (hasInput(input)) {
+            movePlayer(input, delta);
+        }
 
     }
 
     public static void movePlayer(Input input, int delta) {
+
         Player player = getPlayer(current_world.getMap());
         player.update(input, delta);
 
@@ -52,8 +63,12 @@ public class GameManager {
         // blocked (as in it is a wall). If so, return false, otherwise return true.
         boolean isValid = true;
         for (Sprite sprite : current_world.getMapPos(pos)) {
-            if (sprite instanceof Wall) {
+            if ((sprite instanceof Wall) || (sprite instanceof CrackedWall)) {
                 isValid = false;
+            } else if (sprite instanceof Door) {
+                if (!((Door) sprite).isOpen()) {
+                    isValid = false;
+                }
             }
         }
         return isValid;
@@ -69,12 +84,13 @@ public class GameManager {
         while (itr.hasNext()) {
             Sprite sprite = itr.next();
             if (sprite instanceof Block) {
-                isValid = ((Block) sprite).moveToDest(dir);
+                isValid = ((Block) sprite).push(dir);
                 break;
             }
         }
         return isValid;
     }
+
 
 
     private static Player getPlayer(HashMap<Coordinate, ArrayList<Sprite>> map) {
@@ -94,6 +110,37 @@ public class GameManager {
         current_world.render(g);
     }
 
+    public static void deleteSprite(Sprite sprite, Coordinate pos) {
+        Iterator<Sprite> itr = current_world.getMapPos(pos).iterator();
+        while(itr.hasNext()) {
+            Sprite check = itr.next();
+            if (check.equals(sprite)) {
+                itr.remove();
+            }
+        }
+    }
 
+    public static ArrayList<Sprite> getTilesAtPos(Coordinate pos) {
+        return current_world.getMapPos(pos);
+    }
+
+    private static boolean hasInput(Input input) {
+        if (input.isKeyDown(Input.KEY_DOWN) || input.isKeyDown(Input.KEY_UP) ||
+                input.isKeyDown(Input.KEY_LEFT) || input.isKeyDown(Input.KEY_RIGHT)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void recordWorld() {
+        World prev_world = cloneWorld();
+        GameStates.recordMove(prev_world);
+    }
+
+    private static World cloneWorld() {
+        World copy = new World(level_name);
+        copy.setMap(copy.copyMap(current_world.getMap()));
+        return copy;
+    }
 }
 

@@ -96,7 +96,6 @@ public class Loader {
     /**
      * Parses a string to a sprite object
      * @param name of object
-     * @param x of sprite
      * @return Sprite object
      * @throws SlickException
      */
@@ -104,12 +103,16 @@ public class Loader {
         // First make name lower case (all resource tile files should have lower case names!)
         name = name.toLowerCase();
         String source;
-        boolean blocked = false;
 
         // If it's the player, it's player_left.png, otherwise make the path as specified
         if (name.equals("player")) {
             source = "res/player_left.png";
-        } else {
+        } else if (name.equals("skeleton")) {
+            source = "res/skull.png";
+        } else if (name.equals("cracked")) {
+            source = "res/cracked_wall.png";
+        }
+        else {
             source = "res/" + name + ".png";
         }
 
@@ -131,6 +134,27 @@ public class Loader {
                 break;
             case "player":
                 tile = new Player(source, pos);
+                break;
+            case "mage":
+                tile = new Mage(source, pos);
+                break;
+            case "rogue":
+                tile = new Rogue(source, pos);
+                break;
+            case "skeleton":
+                tile = new Skeleton(source, pos);
+                break;
+            case "switch":
+                tile = new Switch(source, pos);
+                break;
+            case "tnt":
+                tile = new TNT(source, pos);
+                break;
+            case "door":
+                tile = new Door(source, pos);
+                break;
+            case "cracked":
+                tile = new CrackedWall(source, pos);
                 break;
         }
 

@@ -7,8 +7,8 @@ import org.newdawn.slick.Input;
  */
 public class Sprite {
 
-	private Image img;
-	private Coordinate pos;
+	protected Image img;
+	protected Coordinate pos;
 
 	// Make a data constructor
     public Sprite(String image_src, Coordinate pos) {

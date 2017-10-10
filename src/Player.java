@@ -36,10 +36,11 @@ public class Player extends Sprite implements Moveable{
 
         // Move to our destination
         // if it moved, rehash position in hash map
-        moveToDest(dir);
+        move(dir);
+        GameManager.recordWorld();
     }
 
-    public boolean moveToDest(int dir)
+    public boolean move(int dir)
     {
         boolean did_move = false;
 
