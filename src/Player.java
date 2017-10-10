@@ -36,10 +36,7 @@ public class Player extends Sprite implements Moveable{
 
         // Move to our destination
         // if it moved, rehash position in hash map
-        if (moveToDest(dir)) {
-            GameManager.rehashPlayer();
-        };
-
+        moveToDest(dir);
     }
 
     public boolean moveToDest(int dir)
@@ -68,10 +65,12 @@ public class Player extends Sprite implements Moveable{
         Coordinate new_pos = new Coordinate(getPosX() + delta_x, getPosY() + delta_y);
 
         // Make sure the position isn't occupied!
-        if (GameManager.isValidMove(new_pos)) {
+        if (GameManager.isValidMove(new_pos) && GameManager.checkPush(new_pos, dir)) {
+            GameManager.rehashTile(getPos(), new_pos, this);
             setPos(new_pos);
             did_move = true;
         }
+
         return did_move;
     }
 

@@ -52,18 +52,16 @@ public class World {
         return map.get(pos);
     }
 
-    public void rehashPlayerTile(Coordinate pos) {
-	    for (ArrayList<Sprite> row : map.values()) {
-	        Iterator<Sprite> itr = row.iterator();
-	        while (itr.hasNext()) {
-	            Sprite sprite = itr.next();
-                if (itr instanceof Player) {
-                    System.out.println("fish");
-                    itr.remove();
-                    map.get(pos).add(sprite);
-                }
+    public void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite) {
+	    Iterator<Sprite> itr = map.get(old_pos).iterator();
+	    while(itr.hasNext()) {
+	        Sprite check = itr.next();
+	        if (check.equals(sprite)) {
+	            itr.remove();
+	            break;
             }
         }
+        map.get(new_pos).add(sprite);
     }
 
 }

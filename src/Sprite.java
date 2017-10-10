@@ -29,7 +29,18 @@ public class Sprite {
 
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
 
+        if (!(other instanceof Sprite))
+            return false;
+
+        Sprite otherSprite = (Sprite) other;
+
+        return ((this.img == otherSprite.img) && (this.pos.equals(otherSprite.pos)));
+    }
 
     // Getters and setters
     public int getPosX() { return this.pos.getX(); }

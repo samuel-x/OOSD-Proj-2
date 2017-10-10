@@ -3,6 +3,7 @@ import org.newdawn.slick.Graphics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class GameManager {
     private static int currentLevelX;
@@ -58,9 +59,21 @@ public class GameManager {
         return isValid;
     }
 
-    public static void rehashPlayer() {
-        Player player = getPlayer(current_world.getMap());
-        current_world.rehashPlayerTile(player.getPos());
+    public static void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite) {
+        current_world.rehashTile(old_pos, new_pos, sprite);
+    }
+
+    public static boolean checkPush(Coordinate pos, int dir) {
+        boolean isValid = true;
+        Iterator<Sprite> itr = current_world.getMapPos(pos).iterator();
+        while (itr.hasNext()) {
+            Sprite sprite = itr.next();
+            if (sprite instanceof Block) {
+                isValid = ((Block) sprite).moveToDest(dir);
+                break;
+            }
+        }
+        return isValid;
     }
 
 
@@ -75,12 +88,12 @@ public class GameManager {
             }
         }
         return player;
-
     }
 
     public static void render(Graphics g) {
         current_world.render(g);
     }
+
 
 }
 
