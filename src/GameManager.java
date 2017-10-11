@@ -43,6 +43,7 @@ public class GameManager {
         }
         if (hasInput(input)) {
             movePlayer(input, delta);
+            current_world.update();
         }
 
     }
@@ -75,7 +76,9 @@ public class GameManager {
     }
 
     public static void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite) {
-        current_world.rehashTile(old_pos, new_pos, sprite);
+        HashMap<Coordinate, ArrayList<Sprite>> new_map = current_world.copyMap(current_world.getMap());
+        current_world.rehashTile(old_pos, new_pos, sprite, new_map);
+        current_world.setMap(new_map);
     }
 
     public static boolean checkPush(Coordinate pos, int dir) {

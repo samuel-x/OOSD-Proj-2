@@ -7,7 +7,7 @@ public class Mage extends Unit {
     }
 
     @Override
-    public void update(Input input, int delta) {
+    public void update() {
 
     }
 }

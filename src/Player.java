@@ -17,7 +17,6 @@ public class Player extends Sprite implements Moveable{
      * @param input of keyboard
      * @return new coordinates
      */
-    @Override
     public void update(Input input, int delta) {
         int dir = DIR_NONE;
 

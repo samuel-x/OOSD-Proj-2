@@ -23,8 +23,13 @@ public class World {
      * @param input of the keyboard
      * @param delta (for modifying the rate at which the game is updated)
      */
-	public void update(Input input, int delta) {
-
+	public void update() {
+        HashMap<Coordinate, ArrayList<Sprite>> updated_map = copyMap(map);
+        for (ArrayList<Sprite> tile : map.values()) {
+            for (Sprite sprite : tile) {
+                sprite.update();
+            }
+        }
 	}
 
 
@@ -34,8 +39,8 @@ public class World {
      */
 	public void render(Graphics g) {
 
-        for (ArrayList<Sprite> height : map.values()) {
-            for (Sprite sprite : height) {
+        for (ArrayList<Sprite> tile : map.values()) {
+            for (Sprite sprite : tile) {
                 // Get centered coordinates for the map (so it renders in the middle of the screen)
                 sprite.render();
 
@@ -51,7 +56,7 @@ public class World {
         return map.get(pos);
     }
 
-    public void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite) {
+    public void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite, HashMap<Coordinate, ArrayList<Sprite>> map) {
 	    Iterator<Sprite> itr = map.get(old_pos).iterator();
 	    while(itr.hasNext()) {
 	        Sprite check = itr.next();
@@ -65,7 +70,9 @@ public class World {
 
     public HashMap<Coordinate, ArrayList<Sprite>> copyMap(HashMap<Coordinate, ArrayList<Sprite>> map) {
         HashMap<Coordinate, ArrayList<Sprite>> new_map = new HashMap<Coordinate, ArrayList<Sprite>>();
-        new_map.putAll(map);
+        for (Map.Entry<Coordinate, ArrayList<Sprite>> tile : map.entrySet()) {
+            new_map.put(tile.getKey(), tile.getValue());
+        }
         return new_map;
     }
 

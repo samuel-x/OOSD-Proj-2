@@ -25,7 +25,8 @@ public class Sprite {
         img.drawCentered(pos.getX(), pos.getY());
     }
 
-    public void update(Input input, int delta) {
+    public void update() {
+
 
     }
 
@@ -39,7 +40,7 @@ public class Sprite {
 
         Sprite otherSprite = (Sprite) other;
 
-        return ((this.img == otherSprite.img) && (this.pos.equals(otherSprite.pos)));
+        return ((this.img.equals(otherSprite.img)) && (this.pos.equals(otherSprite.pos)));
     }
 
     // Getters and setters

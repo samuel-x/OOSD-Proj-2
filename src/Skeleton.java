@@ -7,7 +7,7 @@ public class Skeleton extends Unit {
     }
 
     @Override
-    public void update(Input input, int delta) {
+    public void update() {
         if(!move(current_dir)) {
             if (current_dir == DIR_UP) {
                 current_dir = DIR_DOWN;
