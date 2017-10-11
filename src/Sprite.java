@@ -1,42 +1,71 @@
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Input;
 
 /**
  * This class represents one sprite on the screen
  */
 public class Sprite {
-	private Image img;
-	private int posX;
-	private int posY;
-	private boolean isBlocked;
+
+	protected Image img;
+	protected Coordinate pos;
+	protected String image_src;
 
 	// Make a data constructor
-    public Sprite(String image_src, int x, int y, boolean access) throws SlickException {
-        this.img = new Image(image_src);
-        this.posX = x;
-        this.posY = y;
-        this.isBlocked = access;
+    public Sprite(String image_src, Coordinate pos) {
+        try {
+            img = new Image(image_src);
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+        this.image_src = image_src;
+        this.pos = pos;
+    }
+
+    public void render() {
+        img.drawCentered(pos.getX(), pos.getY());
+    }
+
+    public void update() {
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+
+        if (!(other instanceof Sprite))
+            return false;
+
+        Sprite otherSprite = (Sprite) other;
+
+        return ((this.img.equals(otherSprite.img)) && (this.pos.equals(otherSprite.pos)));
     }
 
     // Getters and setters
-    public int getPosX() { return posX; }
+    public int getPosX() { return this.pos.getX(); }
 
     public int getPosY() {
-        return posY;
+        return this.pos.getY();
     }
 
-    public Image getImg() {
-        return img;
-    }
-
-    public boolean getBlocked() { return isBlocked; }
+    public Coordinate getPos() { return this.pos; }
 
     public void setPosX(int posX) {
-        this.posX = posX;
+        this.pos.setX(posX);
     }
 
-    public void setPosY(int posY) {
-        this.posY = posY;
+    public void setPosY(int posY) { this.pos.setY(posY); }
+
+    public void setPos(Coordinate pos) {
+        this.pos = pos;
+    }
+
+    public Sprite cloneSprite() throws SlickException{
+        System.out.println(this);
+        String name = image_src.split("\\p{Punct}")[1];
+        System.out.println(name);
+        return Loader.parseSprite(name, pos);
     }
 }
 
