@@ -1,7 +1,9 @@
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.KeyListener;
+import org.newdawn.slick.SlickException;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +14,7 @@ public class GameManager {
     private static int currentLevel = 0;
     private static String level_name = "res/levels/" + currentLevel + ".lvl";
     private static World current_world;
+    private static GameStates game;
 
     public static void newGame() {
         loadLevel(level_name);
@@ -25,35 +28,105 @@ public class GameManager {
 
     public static void loadLevel(String level_name) {
         current_world = new World(level_name);
+        game = new GameStates();
     }
 
     public static void restartLevel() {
-        current_world = new World(level_name);
+        loadLevel(level_name);
     }
 
-    public static void update(Input input, int delta) {
+    public static void print_level() {
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            for (Sprite sprite : tile) {
+                System.out.print(sprite);
+            }
+        }
+    }
+
+    public static void update(Input input, int delta) throws SlickException {
 
         // Get the player, and then move it around according to input.
         if (input.isKeyPressed(Input.KEY_R)) {
+            restartLevel();
+        }
+        else if (input.isKeyPressed(Input.KEY_L)) {
             nextLevel();
         }
-        if (input.isKeyPressed(Input.KEY_Z)) {
-            System.out.println("yay");
-            current_world = GameStates.undo();
+        else if (input.isKeyPressed(Input.KEY_Z)) {
+            if (!game.check()) {
+                World prev_world = game.undo();
+                current_world.setMap(prev_world.getMap());
+                System.out.println(current_world);
+                System.out.println("player is " + getPlayer());
+            }
         }
-        if (hasInput(input)) {
-            movePlayer(input, delta);
+        else if (input.isKeyPressed(Input.KEY_DOWN) || input.isKeyPressed(Input.KEY_UP) || input.isKeyPressed(Input.KEY_LEFT) || input.isKeyPressed(Input.KEY_RIGHT)) {
+            Player player = getPlayer();
+            player.update(input, delta);
+            checkGameOver();
             current_world.update();
+            checkGameWin();
+            recordWorld();
+        }
+        Ice ice = getIce();
+        if (ice != null) {
+            ice.update();
         }
 
     }
 
-    public static void movePlayer(Input input, int delta) {
-
-        Player player = getPlayer(current_world.getMap());
-        player.update(input, delta);
-
+    public static void checkGameOver() {
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            boolean hasEnemy = false;
+            boolean hasPlayer = false;
+            for (Sprite sprite : tile) {
+                if (sprite instanceof Unit) {
+                    hasEnemy = true;
+                }
+                if (sprite instanceof Player) {
+                    hasPlayer = true;
+                }
+                if (hasEnemy && hasPlayer) {
+                    restartLevel();
+                }
+            }
+        }
     }
+
+    public static void checkGameWin() {
+        int targetsCovered = 0;
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            boolean hasTarget = false;
+            boolean hasBlock = false;
+            for (Sprite sprite : tile) {
+                if (sprite instanceof Target) {
+                    hasTarget = true;
+                }
+                if (sprite instanceof Block) {
+                    hasBlock = true;
+                }
+                if (hasTarget && hasBlock) {
+                    targetsCovered++;
+                }
+            }
+        }
+        if (targetsCovered == countTargets()) {
+            nextLevel();
+        }
+    }
+
+    private static int countTargets() {
+        int targets = 0;
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            for (Sprite sprite : tile) {
+                if (sprite instanceof Target) {
+                    targets++;
+                }
+            }
+        }
+        return targets;
+    }
+
 
     /**
      * Checks if the next move is valid
@@ -76,9 +149,7 @@ public class GameManager {
     }
 
     public static void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite) {
-        HashMap<Coordinate, ArrayList<Sprite>> new_map = current_world.copyMap(current_world.getMap());
-        current_world.rehashTile(old_pos, new_pos, sprite, new_map);
-        current_world.setMap(new_map);
+        current_world.rehashTile(old_pos, new_pos, sprite, current_world.getMap());
     }
 
     public static boolean checkPush(Coordinate pos, int dir) {
@@ -87,19 +158,47 @@ public class GameManager {
         while (itr.hasNext()) {
             Sprite sprite = itr.next();
             if (sprite instanceof Block) {
-                isValid = ((Block) sprite).push(dir);
-                break;
+                if (sprite instanceof Ice) {
+                    isValid = ((Ice) sprite).update(dir);
+                    break;
+                }
+                else {
+                    isValid = ((Block) sprite).push(dir);
+                    break;
+                }
             }
         }
         return isValid;
     }
 
+    public static boolean checkPush(Coordinate pos) {
+        boolean isValid = true;
+        Iterator<Sprite> itr = current_world.getMapPos(pos).iterator();
+        while (itr.hasNext()) {
+            Sprite sprite = itr.next();
+            if (sprite instanceof Block) {
+                isValid = false;
+            }
+        }
+        return isValid;
+    }
+
+    public static void switchDoor(boolean isOpen) {
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            for (Sprite sprite : tile) {
+                if (sprite instanceof Door) {
+                    Door door = (Door) sprite;
+                    door.setOpen(isOpen);
+                }
+            }
+        }
+    }
 
 
-    private static Player getPlayer(HashMap<Coordinate, ArrayList<Sprite>> map) {
+    private static Player getPlayer() {
         Player player = null;
         // Iterate over the list of sprites, and render them
-        for (ArrayList<Sprite> height : map.values()) {
+        for (ArrayList<Sprite> height : current_world.getMap().values()) {
             for (Sprite sprite : height) {
                 if (sprite instanceof Player) {
                     player = (Player) sprite;
@@ -107,6 +206,19 @@ public class GameManager {
             }
         }
         return player;
+    }
+
+    private static Ice getIce() {
+        Ice ice = null;
+        // Iterate over the list of sprites, and render them
+        for (ArrayList<Sprite> height : current_world.getMap().values()) {
+            for (Sprite sprite : height) {
+                if (sprite instanceof Ice) {
+                    ice = (Ice) sprite;
+                }
+            }
+        }
+        return ice;
     }
 
     public static void render(Graphics g) {
@@ -127,23 +239,11 @@ public class GameManager {
         return current_world.getMapPos(pos);
     }
 
-    private static boolean hasInput(Input input) {
-        if (input.isKeyDown(Input.KEY_DOWN) || input.isKeyDown(Input.KEY_UP) ||
-                input.isKeyDown(Input.KEY_LEFT) || input.isKeyDown(Input.KEY_RIGHT)) {
-            return true;
-        }
-        return false;
+    public static void recordWorld() throws SlickException{
+        World prev_world = new World(level_name);
+        prev_world.setMap(current_world.copyMap(current_world.getMap()));
+        game.recordMove(prev_world);
     }
 
-    public static void recordWorld() {
-        World prev_world = cloneWorld();
-        GameStates.recordMove(prev_world);
-    }
-
-    private static World cloneWorld() {
-        World copy = new World(level_name);
-        copy.setMap(copy.copyMap(current_world.getMap()));
-        return copy;
-    }
 }
 

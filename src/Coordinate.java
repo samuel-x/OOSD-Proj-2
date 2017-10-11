@@ -41,4 +41,8 @@ public class Coordinate {
         hash = 71 * hash + this.y;
         return hash;
     }
+
+    public Coordinate clone() {
+        return new Coordinate(x, y);
+    }
 }

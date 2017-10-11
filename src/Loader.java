@@ -99,7 +99,7 @@ public class Loader {
      * @return Sprite object
      * @throws SlickException
      */
-	private static Sprite parseSprite(String name, Coordinate pos) throws SlickException {
+	public static Sprite parseSprite(String name, Coordinate pos) throws SlickException {
         // First make name lower case (all resource tile files should have lower case names!)
         name = name.toLowerCase();
         String source;
@@ -150,6 +150,9 @@ public class Loader {
             case "tnt":
                 tile = new TNT(source, pos);
                 break;
+            case "ice":
+                tile = new Ice(source, pos);
+                break;
             case "door":
                 tile = new Door(source, pos);
                 break;
@@ -162,7 +165,6 @@ public class Loader {
         // return the new sprite
         return tile;
     }
-
 
 }
 

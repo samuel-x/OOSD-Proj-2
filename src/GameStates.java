@@ -1,13 +1,28 @@
 import java.util.Stack;
 
 public class GameStates {
-    static Stack<World> history = new Stack();
-    public static void recordMove(World world) {
-        history.push(world);
+    public static Stack<World> history;
+    public static int depth;
+
+    public GameStates() {
+        this.history = new Stack<World>();
+        this.depth = 0;
     }
-    public static World undo() {
+
+    public void recordMove(World world) {
+        history.push(world);
+        depth++;
+        System.out.println("Depth" + depth);
+        System.out.println("Size" + history.size());
+    }
+    public World undo() {
         World undo = history.pop();
-        System.out.println(undo);
+        depth--;
+        System.out.println("Depth" + depth);
+        System.out.println("Size" + history.size());
         return undo;
+    }
+    public boolean check() {
+        return history.empty();
     }
 }

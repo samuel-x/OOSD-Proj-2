@@ -34,6 +34,7 @@ public abstract class Unit extends Sprite implements Moveable {
 
         // Make sure the position isn't occupied!
         if (GameManager.isValidMove(new_pos)) {
+            GameManager.rehashTile(getPos(), new_pos, this);
             setPos(new_pos);
             did_move = true;
         }

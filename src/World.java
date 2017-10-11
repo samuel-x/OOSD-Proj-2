@@ -1,6 +1,7 @@
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -20,15 +21,22 @@ public class World {
 
     /**
      * Updates the world for the next frame
-     * @param input of the keyboard
-     * @param delta (for modifying the rate at which the game is updated)
      */
 	public void update() {
-        HashMap<Coordinate, ArrayList<Sprite>> updated_map = copyMap(map);
+        ArrayList<Sprite> sprites_to_update = new ArrayList<Sprite>();
         for (ArrayList<Sprite> tile : map.values()) {
             for (Sprite sprite : tile) {
-                sprite.update();
+                if (sprite instanceof Player) {
+                    System.out.println("Skipping player");
+                    continue;
+                }
+                sprites_to_update.add(sprite);
             }
+        }
+
+        Iterator<Sprite> itr = sprites_to_update.iterator();
+        while(itr.hasNext()) {
+            itr.next().update();
         }
 	}
 
@@ -68,11 +76,18 @@ public class World {
         map.get(new_pos).add(sprite);
     }
 
-    public HashMap<Coordinate, ArrayList<Sprite>> copyMap(HashMap<Coordinate, ArrayList<Sprite>> map) {
+    public HashMap<Coordinate, ArrayList<Sprite>> copyMap(HashMap<Coordinate, ArrayList<Sprite>> map) throws SlickException {
         HashMap<Coordinate, ArrayList<Sprite>> new_map = new HashMap<Coordinate, ArrayList<Sprite>>();
-        for (Map.Entry<Coordinate, ArrayList<Sprite>> tile : map.entrySet()) {
-            new_map.put(tile.getKey(), tile.getValue());
+        for (HashMap.Entry<Coordinate, ArrayList<Sprite>> tile : map.entrySet()) {
+            Coordinate new_coord = tile.getKey().clone();
+            ArrayList<Sprite> new_tile = new ArrayList<>();
+            for (Sprite sprite : tile.getValue()) {
+                Sprite new_sprite = sprite.cloneSprite();
+                new_tile.add(new_sprite);
+            }
+            new_map.put(new_coord, new_tile);
         }
+
         return new_map;
     }
 

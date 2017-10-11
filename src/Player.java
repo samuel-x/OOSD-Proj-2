@@ -20,23 +20,22 @@ public class Player extends Sprite implements Moveable{
     public void update(Input input, int delta) {
         int dir = DIR_NONE;
 
-        if (input.isKeyPressed(Input.KEY_LEFT)) {
+        if (input.isKeyDown(Input.KEY_LEFT)) {
             dir = DIR_LEFT;
         }
-        else if (input.isKeyPressed(Input.KEY_RIGHT)) {
+        else if (input.isKeyDown(Input.KEY_RIGHT)) {
             dir = DIR_RIGHT;
         }
-        else if (input.isKeyPressed(Input.KEY_UP)) {
+        else if (input.isKeyDown(Input.KEY_UP)) {
             dir = DIR_UP;
         }
-        else if (input.isKeyPressed(Input.KEY_DOWN)) {
+        else if (input.isKeyDown(Input.KEY_DOWN)) {
             dir = DIR_DOWN;
         }
 
         // Move to our destination
         // if it moved, rehash position in hash map
         move(dir);
-        GameManager.recordWorld();
     }
 
     public boolean move(int dir)

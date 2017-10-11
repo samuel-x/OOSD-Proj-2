@@ -9,6 +9,7 @@ public class Sprite {
 
 	protected Image img;
 	protected Coordinate pos;
+	protected String image_src;
 
 	// Make a data constructor
     public Sprite(String image_src, Coordinate pos) {
@@ -17,7 +18,7 @@ public class Sprite {
         } catch (SlickException e) {
             e.printStackTrace();
         }
-
+        this.image_src = image_src;
         this.pos = pos;
     }
 
@@ -26,8 +27,6 @@ public class Sprite {
     }
 
     public void update() {
-
-
     }
 
     @Override
@@ -60,6 +59,13 @@ public class Sprite {
 
     public void setPos(Coordinate pos) {
         this.pos = pos;
+    }
+
+    public Sprite cloneSprite() throws SlickException{
+        System.out.println(this);
+        String name = image_src.split("\\p{Punct}")[1];
+        System.out.println(name);
+        return Loader.parseSprite(name, pos);
     }
 }
 
