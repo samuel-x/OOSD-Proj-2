@@ -6,11 +6,9 @@ import java.util.Iterator;
 
 public class TNT extends Block {
 
-    private static Image explosion = null;
 
     public TNT(String image_src, Coordinate pos) throws SlickException {
         super(image_src, pos);
-        this.explosion = new Image("res/explosion.png");
     }
 
     @Override
@@ -47,6 +45,7 @@ public class TNT extends Block {
         }
         else if(checkCollisionWithCrackedWall(new_pos)) {
             GameManager.rehashTile(getPos(), new_pos, this);
+            GameManager.addTile(new_pos, new Explosion(Explosion.SOURCE, new_pos));
             GameManager.deleteSprite(this, new_pos);
 
         }
@@ -56,7 +55,7 @@ public class TNT extends Block {
 
     public void explode(CrackedWall wall) {
         GameManager.deleteSprite(wall, wall.getPos());
-        explosion.drawCentered(getPosX(), getPosY());
+
     }
 
     private boolean checkCollisionWithCrackedWall(Coordinate pos) {

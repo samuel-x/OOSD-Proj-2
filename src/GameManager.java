@@ -13,6 +13,7 @@ public class GameManager {
     private static int currentLevelY;
     private static int currentLevel = 0;
     private static String level_name = "res/levels/" + currentLevel + ".lvl";
+    private static final int FINAL_LEVEL = 5;
     private static World current_world;
     private static GameStates game;
 
@@ -33,14 +34,6 @@ public class GameManager {
 
     public static void restartLevel() {
         loadLevel(level_name);
-    }
-
-    public static void print_level() {
-        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
-            for (Sprite sprite : tile) {
-                System.out.print(sprite);
-            }
-        }
     }
 
     public static void update(Input input, int delta) throws SlickException {
@@ -65,12 +58,16 @@ public class GameManager {
             player.update(input, delta);
             checkGameOver();
             current_world.update();
-            checkGameWin();
+            checkGameOver();
             recordWorld();
         }
         Ice ice = getIce();
         if (ice != null) {
             ice.update();
+        }
+        if (!(currentLevel == FINAL_LEVEL)) {
+            checkGameWin();
+            checkGameOver();
         }
 
     }
@@ -152,6 +149,10 @@ public class GameManager {
         current_world.rehashTile(old_pos, new_pos, sprite, current_world.getMap());
     }
 
+    public static void addTile(Coordinate new_pos, Sprite sprite) {
+        current_world.addTile(new_pos, sprite, current_world.getMap());
+    }
+
     public static boolean checkPush(Coordinate pos, int dir) {
         boolean isValid = true;
         Iterator<Sprite> itr = current_world.getMapPos(pos).iterator();
@@ -195,7 +196,7 @@ public class GameManager {
     }
 
 
-    private static Player getPlayer() {
+    public static Player getPlayer() {
         Player player = null;
         // Iterate over the list of sprites, and render them
         for (ArrayList<Sprite> height : current_world.getMap().values()) {

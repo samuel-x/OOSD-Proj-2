@@ -64,6 +64,10 @@ public class World {
         return map.get(pos);
     }
 
+    public void addTile(Coordinate pos, Sprite sprite, HashMap<Coordinate, ArrayList<Sprite>> map) {
+        map.get(pos).add(sprite);
+    }
+
     public void rehashTile(Coordinate old_pos, Coordinate new_pos, Sprite sprite, HashMap<Coordinate, ArrayList<Sprite>> map) {
 	    Iterator<Sprite> itr = map.get(old_pos).iterator();
 	    while(itr.hasNext()) {

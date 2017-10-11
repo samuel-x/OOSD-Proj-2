@@ -4,7 +4,7 @@ public abstract class Unit extends Sprite implements Moveable {
 
     public Unit(String image_src, Coordinate pos) {
         super(image_src, pos);
-        this.current_dir = 0;
+        this.current_dir = DIR_NONE;
     }
 
     public boolean move(int dir)

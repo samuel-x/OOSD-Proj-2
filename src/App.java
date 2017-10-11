@@ -73,7 +73,6 @@ public class App extends BasicGame
         app.setShowFPS(true);
         app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);
         app.start();
-        app.setTargetFrameRate(60);
     }
 
 }
