@@ -16,6 +16,7 @@ public class GameManager {
     private static final int FINAL_LEVEL = 5;
     private static World current_world;
     private static GameStates game;
+    private static final String MOVES = "Moves: ";
 
     public static void newGame() {
         loadLevel(level_name);
@@ -49,8 +50,6 @@ public class GameManager {
             if (!game.check()) {
                 World prev_world = game.undo();
                 current_world.setMap(prev_world.getMap());
-                System.out.println(current_world);
-                System.out.println("player is " + getPlayer());
             }
         }
         else if (input.isKeyPressed(Input.KEY_DOWN) || input.isKeyPressed(Input.KEY_UP) || input.isKeyPressed(Input.KEY_LEFT) || input.isKeyPressed(Input.KEY_RIGHT)) {
@@ -61,15 +60,27 @@ public class GameManager {
             checkGameOver();
             recordWorld();
         }
-        Ice ice = getIce();
-        if (ice != null) {
-            ice.update();
-        }
+        updateRealTimeSprites();
         if (!(currentLevel == FINAL_LEVEL)) {
             checkGameWin();
             checkGameOver();
         }
 
+    }
+
+    private static void updateRealTimeSprites() {
+        ArrayList<Sprite> sprites_to_update = new ArrayList<Sprite>();
+        for (ArrayList<Sprite> tile : current_world.getMap().values()) {
+            for (Sprite sprite : tile) {
+                if (sprite instanceof Timed) {
+                    sprites_to_update.add(sprite);
+                }
+            }
+        }
+        Iterator<Sprite> itr = sprites_to_update.iterator();
+        while(itr.hasNext()) {
+            itr.next().update();
+        }
     }
 
     public static void checkGameOver() {
@@ -153,20 +164,14 @@ public class GameManager {
         current_world.addTile(new_pos, sprite, current_world.getMap());
     }
 
-    public static boolean checkPush(Coordinate pos, int dir) {
+    public static boolean tryPush(Coordinate pos, int dir) {
         boolean isValid = true;
         Iterator<Sprite> itr = current_world.getMapPos(pos).iterator();
         while (itr.hasNext()) {
             Sprite sprite = itr.next();
             if (sprite instanceof Block) {
-                if (sprite instanceof Ice) {
-                    isValid = ((Ice) sprite).update(dir);
+                    isValid = ((Block) sprite).move(dir);
                     break;
-                }
-                else {
-                    isValid = ((Block) sprite).push(dir);
-                    break;
-                }
             }
         }
         return isValid;
@@ -209,21 +214,9 @@ public class GameManager {
         return player;
     }
 
-    private static Ice getIce() {
-        Ice ice = null;
-        // Iterate over the list of sprites, and render them
-        for (ArrayList<Sprite> height : current_world.getMap().values()) {
-            for (Sprite sprite : height) {
-                if (sprite instanceof Ice) {
-                    ice = (Ice) sprite;
-                }
-            }
-        }
-        return ice;
-    }
-
     public static void render(Graphics g) {
         current_world.render(g);
+        renderMoves(game.getDepth(), g);
     }
 
     public static void deleteSprite(Sprite sprite, Coordinate pos) {
@@ -244,6 +237,10 @@ public class GameManager {
         World prev_world = new World(level_name);
         prev_world.setMap(current_world.copyMap(current_world.getMap()));
         game.recordMove(prev_world);
+    }
+
+    public static void renderMoves(int depth, Graphics g) {
+        g.drawString(MOVES + Integer.toString(depth), 20, 20);
     }
 
 }

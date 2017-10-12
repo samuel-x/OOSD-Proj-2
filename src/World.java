@@ -27,7 +27,6 @@ public class World {
         for (ArrayList<Sprite> tile : map.values()) {
             for (Sprite sprite : tile) {
                 if (sprite instanceof Player) {
-                    System.out.println("Skipping player");
                     continue;
                 }
                 sprites_to_update.add(sprite);

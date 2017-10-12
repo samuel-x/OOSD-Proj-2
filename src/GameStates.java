@@ -12,17 +12,17 @@ public class GameStates {
     public void recordMove(World world) {
         history.push(world);
         depth++;
-        System.out.println("Depth" + depth);
-        System.out.println("Size" + history.size());
     }
     public World undo() {
         World undo = history.pop();
         depth--;
-        System.out.println("Depth" + depth);
-        System.out.println("Size" + history.size());
         return undo;
     }
     public boolean check() {
         return history.empty();
+    }
+
+    public static int getDepth() {
+        return depth;
     }
 }

@@ -6,56 +6,13 @@ import java.util.Iterator;
 
 public class TNT extends Block {
 
-
     public TNT(String image_src, Coordinate pos) throws SlickException {
         super(image_src, pos);
     }
 
-    @Override
-    public boolean push(int dir)
-    {
-        boolean did_move = false;
-
-        int speed = 32;
-        // Translate the direction to an x and y displacement
-        int delta_x = 0,
-                delta_y = 0;
-        switch (dir) {
-            case DIR_LEFT:
-                delta_x = -speed;
-                break;
-            case DIR_RIGHT:
-                delta_x = speed;
-                break;
-            case DIR_UP:
-                delta_y = -speed;
-                break;
-            case DIR_DOWN:
-                delta_y = speed;
-                break;
-        }
-
-        Coordinate new_pos = new Coordinate(getPosX() + delta_x, getPosY() + delta_y);
-
-        // Make sure the position isn't occupied!
-        if (GameManager.isValidMove(new_pos) && GameManager.checkPush(new_pos, dir)) {
-            GameManager.rehashTile(getPos(), new_pos, this);
-            setPos(new_pos);
-            did_move = true;
-        }
-        else if(checkCollisionWithCrackedWall(new_pos)) {
-            GameManager.rehashTile(getPos(), new_pos, this);
-            GameManager.addTile(new_pos, new Explosion(Explosion.SOURCE, new_pos));
-            GameManager.deleteSprite(this, new_pos);
-
-        }
-
-        return did_move;
-    }
-
     public void explode(CrackedWall wall) {
         GameManager.deleteSprite(wall, wall.getPos());
-
+        GameManager.addTile(pos, new Explosion(Explosion.SOURCE, pos));
     }
 
     private boolean checkCollisionWithCrackedWall(Coordinate pos) {
@@ -67,10 +24,25 @@ public class TNT extends Block {
             if (sprite instanceof CrackedWall) {
                 wall = (CrackedWall) sprite;
                 didCollide = true;
+                explode(wall);
                 break;
             }
         }
-        explode(wall);
         return didCollide;
     }
+
+    @Override
+    public boolean checkValid(Coordinate new_pos) {
+        if (GameManager.isValidMove(new_pos) && GameManager.checkPush(new_pos)) {
+            GameManager.rehashTile(getPos(), new_pos, this);
+            setPos(new_pos);
+            return true;
+        }
+        else if (checkCollisionWithCrackedWall(new_pos)) {
+            GameManager.deleteSprite(this, pos);
+        }
+        return false;
+    }
 }
+
+

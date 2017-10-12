@@ -1,31 +1,23 @@
-public class Ice extends Block {
+public class Ice extends Block implements Timed {
 
     final int DELAY = 250;
     static long frameHold;
-    int previous_dir;
+    int current_dir;
     public Ice(String image_src, Coordinate pos) {
         super(image_src, pos);
-        this.previous_dir = DIR_NONE;
+        this.current_dir = DIR_NONE;
     }
 
     public void update() {
-        if (previous_dir != DIR_NONE) {
-            update(previous_dir);
-        }
-    }
-
-    public boolean update(int dir) {
-        boolean didMove = true;
-        if (dir != DIR_NONE) {
+        if (current_dir != DIR_NONE) {
             if (System.currentTimeMillis() >= frameHold) {
-                didMove = push(dir);
+               move(current_dir);
             }
         }
-        return didMove;
     }
 
     @Override
-    public boolean push(int dir)
+    public boolean move(int dir)
     {
         boolean did_move = false;
         int speed = 32;
@@ -49,21 +41,21 @@ public class Ice extends Block {
 
         Coordinate new_pos = new Coordinate(getPosX() + delta_x, getPosY() + delta_y);
 
+        return checkValid(new_pos, dir);
+    }
+
+    public boolean checkValid(Coordinate new_pos, int dir) {
         // Make sure the position isn't occupied!
         if (GameManager.isValidMove(new_pos) && GameManager.checkPush(new_pos)) {
             GameManager.rehashTile(getPos(), new_pos, this);
             setPos(new_pos);
-            did_move = true;
             frameHold = System.currentTimeMillis() + DELAY;
-            this.previous_dir = dir;
-        }
-        else if (!GameManager.checkPush(new_pos)){
-            this.previous_dir = DIR_NONE;
+            this.current_dir = dir;
+            return true;
         }
         else {
-            this.previous_dir = DIR_NONE;
+            this.current_dir = DIR_NONE;
         }
-
-        return did_move;
+        return false;
     }
 }

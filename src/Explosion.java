@@ -1,4 +1,4 @@
-public class Explosion extends Sprite {
+public class Explosion extends Sprite implements Timed {
 
     final int DELAY = 400;
     static final String SOURCE = "res/explosion.png";
