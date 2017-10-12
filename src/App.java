@@ -1,9 +1,3 @@
-/**
- *  Project 1 for SWEN20003: Object Oriented Software Development 2017
- *  by Samuel Xu using Eleanor McMurty's skeleton code.
- *  samuelx@student.unimelb.edu.au
- *  Student Number: 835273 
- */
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -15,6 +9,12 @@ import org.newdawn.slick.Input;
 /**
  * Main class for the game.
  * Handles initialisation, input and rendering.
+ *
+ *  Made for Project 2, SWEN20003: Object Oriented Software Development 2017
+ *  @author Samuel Xu
+ *  using Eleanor McMurty's skeleton code.
+ *  samuelx@student.unimelb.edu.au
+ *  Student Number: 835273
  */
 public class App extends BasicGame
 {
@@ -24,11 +24,9 @@ public class App extends BasicGame
     public static final int SCREEN_HEIGHT = 600;
     /** size of the tiles, in pixels */
     public static final int TILE_SIZE = 32;
-    
-    private GameManager game;
 
     public App()
-    {    	
+    {
         super("Shadow Blocks");
     }
 
@@ -42,6 +40,7 @@ public class App extends BasicGame
     /** Update the game state for a frame.
      * @param gc The Slick game container object.
      * @param delta Time passed since last frame (milliseconds).
+     * @throws SlickException to stop the compiler from being mad
      */
     @Override
     public void update(GameContainer gc, int delta)
@@ -49,12 +48,13 @@ public class App extends BasicGame
     {
         // Get data about the current input (keyboard state).
         Input input = gc.getInput();
-        GameManager.update(input, delta);
+        GameManager.update(input);
     }
 
     /** Render the entire screen, so it reflects the current game state.
      * @param gc The Slick game container object.
      * @param g The Slick graphics object, used for drawing.
+     * @throws SlickException to stop the compiler from being mad
      */
     public void render(GameContainer gc, Graphics g)
     throws SlickException
@@ -64,6 +64,7 @@ public class App extends BasicGame
 
     /** Start-up method. Creates the game and runs it.
      * @param args Command-line arguments (ignored).
+     * @throws SlickException to stop the compiler from being mad
      */
     public static void main(String[] args)
     throws SlickException
